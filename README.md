@@ -18,7 +18,7 @@ http://localhost:9200 {
 
 ## Todo
 
-[ ] Filter supported `Content-Type`
+- [ ] Filter supported `Content-Type`, proposal:
 
 ```sh
 minifier {
