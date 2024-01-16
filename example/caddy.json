@@ -1,0 +1,29 @@
+{
+  "apps": {
+    "http": {
+      "servers": {
+        "example": {
+          "listen": [":9200"],
+          "routes": [
+            {
+              "match": [{ "host": ["localhost"] }],
+              "handle": [
+                {
+                  "handler": "minifier"
+                },
+                {
+                  "handler": "reverse_proxy",
+                  "upstreams": [
+                    {
+                      "dial": "localhost:8097"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}

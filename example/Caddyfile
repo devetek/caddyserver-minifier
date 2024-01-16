@@ -1,0 +1,7 @@
+http://localhost:9200 {
+	route {
+		encode zstd gzip
+		minifier
+		reverse_proxy localhost:8097
+	}
+}
