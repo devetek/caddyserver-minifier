@@ -22,10 +22,10 @@ http://localhost:9200 {
 	route {
 		minifier {
 			html {
-				KeepDefaultAttrVals		true
-				KeepDocumentTags		true
-				KeepEndTags				true
-				KeepQuotes				true
+				KeepDefaultAttrVals true
+				KeepDocumentTags true
+				KeepEndTags true
+				KeepQuotes true
 			}
 		}
 		reverse_proxy localhost:8097
@@ -39,14 +39,14 @@ http://localhost:9200 {
 	route {
 		minifier {
 			html {
-				KeepConditionalComments	true
-				KeepSpecialComments		true
-				KeepComments			true
-				KeepWhitespace			true
-				KeepDefaultAttrVals		true
-				KeepDocumentTags		true
-				KeepEndTags				true
-				KeepQuotes				true
+				KeepConditionalComments true
+				KeepSpecialComments true
+				KeepComments true
+				KeepWhitespace true
+				KeepDefaultAttrVals true
+				KeepDocumentTags true
+				KeepEndTags true
+				KeepQuotes true
 			}
 		}
 		reverse_proxy localhost:8097
@@ -60,8 +60,8 @@ http://localhost:9200 {
 
 ```sh
 minifier {
-    js
-	css
+ js
+ css
 }
 ```
 
