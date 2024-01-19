@@ -6,12 +6,18 @@ import (
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/tdewolff/minify/v2"
+
 	htmlminify "github.com/tdewolff/minify/v2/html"
-	svgminify "github.com/tdewolff/minify/v2/svg"
+	// cssminify "github.com/tdewolff/minify/v2/css"
+	// jsminify "github.com/tdewolff/minify/v2/js"
 )
 
 type Middleware struct {
 	minify *minify.M
+	// content type minifier configuration
+	Html htmlminify.Minifier
+	// js   *jsminify.Minifier
+	// css  *cssminify.Minifier
 }
 
 // CaddyModule returns the Caddy module information.
@@ -29,17 +35,8 @@ func (m *Middleware) Provision(ctx caddy.Context) error {
 	if m.minify == nil {
 		m.minify = minify.New()
 
-		// minifier config
-		m.minify.Add("text/html", &htmlminify.Minifier{
-			KeepWhitespace:      false,
-			KeepDefaultAttrVals: true,
-			KeepDocumentTags:    true,
-			KeepEndTags:         true,
-			KeepQuotes:          true,
-		})
-		m.minify.Add("image/svg+xml", &svgminify.Minifier{
-			KeepComments: false,
-		})
+		// set config minifier
+		m.minify.Add("text/html", &m.Html)
 	}
 
 	return nil

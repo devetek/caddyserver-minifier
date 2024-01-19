@@ -6,11 +6,49 @@ Caddyserver v2 plugin that implements minification on-the-fly for CSS, HTML, JSO
 
 Because this directive does not come standard with Caddy, you may use route to order it the way you want. For example:
 
+Minimum configuration:
 ```sh
 http://localhost:9200 {
 	route {
 		minifier
-		encode zstd gzip
+		reverse_proxy localhost:8097
+	}
+}
+```
+
+Partial configuration:
+```sh
+http://localhost:9200 {
+	route {
+		minifier {
+			html {
+				KeepDefaultAttrVals		true
+				KeepDocumentTags		true
+				KeepEndTags				true
+				KeepQuotes				true
+			}
+		}
+		reverse_proxy localhost:8097
+	}
+}
+```
+
+Full configuration:
+```sh
+http://localhost:9200 {
+	route {
+		minifier {
+			html {
+				KeepConditionalComments	true
+				KeepSpecialComments		true
+				KeepComments			true
+				KeepWhitespace			true
+				KeepDefaultAttrVals		true
+				KeepDocumentTags		true
+				KeepEndTags				true
+				KeepQuotes				true
+			}
+		}
 		reverse_proxy localhost:8097
 	}
 }
@@ -18,11 +56,12 @@ http://localhost:9200 {
 
 ## Todo
 
-- [ ] Filter supported `Content-Type`, proposal:
+- [ ] Support for another `Content-Type` (css, js, etc):
 
 ```sh
 minifier {
-    support "text/html" "image/svg+xml"
+    js
+	css
 }
 ```
 
