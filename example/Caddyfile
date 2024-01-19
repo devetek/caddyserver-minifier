@@ -1,7 +1,18 @@
 http://localhost:9200 {
 	route {
 		encode zstd gzip
-		minifier
+		minifier {
+			html {
+				KeepConditionalComments	true
+				KeepSpecialComments		true
+				KeepComments			true
+				KeepWhitespace			true
+				KeepDefaultAttrVals		true
+				KeepDocumentTags		true
+				KeepEndTags				true
+				KeepQuotes				true
+			}
+		}
 		reverse_proxy localhost:8097
 	}
 }
