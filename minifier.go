@@ -2,6 +2,7 @@ package minifier
 
 import (
 	"io"
+	"strings"
 
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 )
@@ -23,7 +24,7 @@ func (fw *responseMinifier) Write(d []byte) (int, error) {
 	var writer io.WriteCloser
 	var mediatype = fw.ResponseWriter.Header().Get("Content-Type")
 
-	if mediatype == "text/html" {
+	if strings.Contains(mediatype, "text/html") {
 		writer = fw.handler.minify.Writer(mediatype, fw.ResponseWriter)
 
 		defer writer.Close()
