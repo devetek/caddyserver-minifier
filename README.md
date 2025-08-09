@@ -39,7 +39,6 @@ http://localhost:9200 {
 	route {
 		minifier {
 			html {
-				KeepConditionalComments true
 				KeepSpecialComments true
 				KeepComments true
 				KeepWhitespace true
@@ -56,6 +55,7 @@ http://localhost:9200 {
 
 ## Todo
 
+- [ ] add Github Action CI to main code quality
 - [ ] Support for another `Content-Type` (css, js, etc):
 
 ```sh

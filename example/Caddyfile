@@ -3,7 +3,6 @@ http://localhost:9200 {
 		encode zstd gzip
 		minifier {
 			html {
-				KeepConditionalComments	true
 				KeepSpecialComments		true
 				KeepComments			true
 				KeepWhitespace			true
@@ -13,6 +12,6 @@ http://localhost:9200 {
 				KeepQuotes				true
 			}
 		}
-		reverse_proxy localhost:8097
+		reverse_proxy localhost:3000
 	}
 }

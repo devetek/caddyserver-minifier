@@ -2,26 +2,82 @@
   "apps": {
     "http": {
       "servers": {
-        "example": {
-          "listen": [":9200"],
+        "srv0": {
+          "listen": [
+            ":9200"
+          ],
           "routes": [
             {
-              "match": [{ "host": ["localhost"] }],
+              "match": [
+                {
+                  "host": [
+                    "localhost"
+                  ]
+                }
+              ],
               "handle": [
                 {
-                  "handler": "minifier"
-                },
-                {
-                  "handler": "reverse_proxy",
-                  "upstreams": [
+                  "handler": "subroute",
+                  "routes": [
                     {
-                      "dial": "localhost:8097"
+                      "handle": [
+                        {
+                          "handler": "subroute",
+                          "routes": [
+                            {
+                              "handle": [
+                                {
+                                  "encodings": {
+                                    "gzip": {},
+                                    "zstd": {}
+                                  },
+                                  "handler": "encode",
+                                  "prefer": [
+                                    "zstd",
+                                    "gzip"
+                                  ]
+                                },
+                                {
+                                  "Html": {
+                                    "KeepComments": true,
+                                    "KeepDefaultAttrVals": true,
+                                    "KeepDocumentTags": true,
+                                    "KeepEndTags": true,
+                                    "KeepQuotes": true,
+                                    "KeepSpecialComments": true,
+                                    "KeepWhitespace": true,
+                                    "TemplateDelims": [
+                                      "",
+                                      ""
+                                    ]
+                                  },
+                                  "handler": "minifier"
+                                },
+                                {
+                                  "handler": "reverse_proxy",
+                                  "upstreams": [
+                                    {
+                                      "dial": "localhost:3000"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
-              ]
+              ],
+              "terminal": true
             }
-          ]
+          ],
+          "automatic_https": {
+            "skip": [
+              "localhost"
+            ]
+          }
         }
       }
     }
