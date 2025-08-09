@@ -39,7 +39,6 @@ http://localhost:9200 {
 	route {
 		minifier {
 			html {
-				KeepConditionalComments true
 				KeepSpecialComments true
 				KeepComments true
 				KeepWhitespace true
