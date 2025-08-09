@@ -104,12 +104,6 @@ func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 						m.Html.KeepQuotes = converterStrToBoolean(d.Val())
 					}
 
-					if d.Val() == "KeepConditionalComments" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepConditionalComments = converterStrToBoolean(d.Val())
-					}
-
 					if d.Val() == "KeepSpecialComments" {
 						// get value from config
 						d.NextArg()

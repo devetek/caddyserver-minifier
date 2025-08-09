@@ -1,2 +1,2 @@
 json-adapter:
-	@xcaddy adapt --config example/Caddyfile  --adapter caddyfile
+	@./caddy adapt --config example/Caddyfile  --adapter caddyfile
