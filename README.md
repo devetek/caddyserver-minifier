@@ -109,11 +109,6 @@ JSON configuration uses the same names:
 }
 ```
 
-## Todo
-
-- [ ] add Github Action CI to main code quality
-- [ ] Support for more `Content-Type` (json, xml)
-
 ## Credit
 
 Special thanks to @mholt for making a good documentation on how to use unstandard Caddy plugins, [mholt/caddy-webdav](https://github.com/mholt/caddy-webdav)
