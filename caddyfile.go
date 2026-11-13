@@ -1,14 +1,14 @@
 package minifier
 
 import (
-	"log"
+	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	htmlminify "github.com/tdewolff/minify/v2/html"
 )
 
 var moduleName = "minifier"
@@ -24,95 +24,136 @@ func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error)
 	return m, err
 }
 
-func converterStrToBoolean(str string) bool {
-	boolValue, err := strconv.ParseBool(str)
-	if err != nil {
-		// print error info
-		log.Println("error on converterStrToBoolean: ", err)
-
-		return false
-	}
-
-	return boolValue
-}
-
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.
+//
+// Syntax:
+//
+//	minifier {
+//		disable <html|css|js|svg>...
+//		html {
+//			<Option> <value>
+//		}
+//		css { ... }
+//		js  { ... }
+//		svg { ... }
+//	}
+//
+// Options are the exported fields of the matching tdewolff/minify
+// Minifier struct (e.g. KeepComments, Precision, KeepVarNames).
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
-	// default configuration
-	m.Html = htmlminify.Minifier{
-		KeepConditionalComments: false,
-		KeepSpecialComments:     false,
-		KeepComments:            false,
-		KeepWhitespace:          false,
-		KeepDefaultAttrVals:     false,
-		KeepDocumentTags:        false,
-		KeepEndTags:             false,
-		KeepQuotes:              false,
+	d.Next() // consume directive name
+	if d.NextArg() {
+		return d.ArgErr()
 	}
 
-	// TODO: improve mechanism to matching config with available minifier config
-	for d.Next() {
+	for d.NextBlock(0) {
+		section := strings.ToLower(d.Val())
+
+		if section == "disable" {
+			args := d.RemainingArgs()
+			if len(args) == 0 {
+				return d.ArgErr()
+			}
+			for _, t := range args {
+				if !isSupportedType(t) {
+					return d.Errf("unsupported content type %q, expected one of %v", t, supportedTypes)
+				}
+			}
+			m.Disable = append(m.Disable, args...)
+			continue
+		}
+
+		var target any
+		switch section {
+		case typeHTML:
+			target = &m.Html
+		case typeCSS:
+			target = &m.Css
+		case typeJS:
+			target = &m.Js
+		case typeSVG:
+			target = &m.Svg
+		default:
+			return d.Errf("unrecognized subdirective %q, expected disable or one of %v", d.Val(), supportedTypes)
+		}
 		if d.NextArg() {
 			return d.ArgErr()
 		}
 
-		// block 0 to determine config for specific content type
-		for d.NextBlock(0) {
-			if d.NextArg() {
-				return d.ArgErr()
-			}
-
-			// check content type name
-			var configFor = d.Val()
-
-			// block 1 to set config detail for specific content type
-			for d.NextBlock(1) {
-				if configFor == "html" {
-					if d.Val() == "KeepComments" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepComments = converterStrToBoolean(d.Val())
-					}
-
-					if d.Val() == "KeepWhitespace" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepWhitespace = converterStrToBoolean(d.Val())
-					}
-
-					if d.Val() == "KeepDefaultAttrVals" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepDefaultAttrVals = converterStrToBoolean(d.Val())
-					}
-
-					if d.Val() == "KeepDocumentTags" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepDocumentTags = converterStrToBoolean(d.Val())
-					}
-
-					if d.Val() == "KeepEndTags" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepEndTags = converterStrToBoolean(d.Val())
-					}
-
-					if d.Val() == "KeepQuotes" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepQuotes = converterStrToBoolean(d.Val())
-					}
-
-					if d.Val() == "KeepSpecialComments" {
-						// get value from config
-						d.NextArg()
-						m.Html.KeepSpecialComments = converterStrToBoolean(d.Val())
-					}
-				}
+		for d.NextBlock(1) {
+			if err := setOption(d, target); err != nil {
+				return err
 			}
 		}
 	}
 
 	return nil
+}
+
+// setOption assigns the arguments on the current line to the exported
+// field of target (a pointer to a minifier struct) named by d.Val().
+func setOption(d *caddyfile.Dispenser, target any) error {
+	name := d.Val()
+	v := reflect.ValueOf(target).Elem()
+	t := v.Type()
+
+	var field reflect.Value
+	for i := 0; i < t.NumField(); i++ {
+		if t.Field(i).IsExported() && strings.EqualFold(t.Field(i).Name, name) {
+			field = v.Field(i)
+			break
+		}
+	}
+	if !field.IsValid() {
+		return d.Errf("unknown option %q, expected one of %v", name, optionNames(t))
+	}
+
+	args := d.RemainingArgs()
+
+	switch field.Kind() {
+	case reflect.Bool:
+		if len(args) != 1 {
+			return d.ArgErr()
+		}
+		b, err := strconv.ParseBool(args[0])
+		if err != nil {
+			return d.Errf("option %s: invalid boolean %q", name, args[0])
+		}
+		field.SetBool(b)
+	case reflect.Int:
+		if len(args) != 1 {
+			return d.ArgErr()
+		}
+		n, err := strconv.Atoi(args[0])
+		if err != nil {
+			return d.Errf("option %s: invalid integer %q", name, args[0])
+		}
+		field.SetInt(int64(n))
+	case reflect.Slice:
+		if len(args) == 0 {
+			return d.ArgErr()
+		}
+		field.Set(reflect.ValueOf(args))
+	case reflect.Array:
+		if len(args) != field.Len() {
+			return d.Errf("option %s: expected %d values, got %d", name, field.Len(), len(args))
+		}
+		for i, a := range args {
+			field.Index(i).SetString(a)
+		}
+	default:
+		return d.Errf("option %s is not configurable from the Caddyfile", name)
+	}
+
+	return nil
+}
+
+func optionNames(t reflect.Type) []string {
+	names := make([]string, 0, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		if t.Field(i).IsExported() {
+			names = append(names, t.Field(i).Name)
+		}
+	}
+	return names
 }

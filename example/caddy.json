@@ -38,8 +38,14 @@
                                   ]
                                 },
                                 {
+                                  "Css": {
+                                    "Inline": false,
+                                    "Precision": 0,
+                                    "Version": 0
+                                  },
                                   "Html": {
                                     "KeepComments": true,
+                                    "KeepConditionalComments": false,
                                     "KeepDefaultAttrVals": true,
                                     "KeepDocumentTags": true,
                                     "KeepEndTags": true,
@@ -50,6 +56,16 @@
                                       "",
                                       ""
                                     ]
+                                  },
+                                  "Js": {
+                                    "KeepVarNames": true,
+                                    "Precision": 0,
+                                    "Version": 0
+                                  },
+                                  "Svg": {
+                                    "KeepComments": false,
+                                    "KeepNamespaces": null,
+                                    "Precision": 0
                                   },
                                   "handler": "minifier"
                                 },
