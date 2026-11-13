@@ -2,7 +2,7 @@ check-module:
 	@xcaddy list-modules
 
 build-module:
-	xcaddy build v2.10.0 --with github.com/devetek/caddyserver-minifier@main=./
+	xcaddy build v2.11.9 --with github.com/devetek/caddyserver-minifier@main=./
 
 run-jsonfile:
 	./caddy run --config example/caddy.json
