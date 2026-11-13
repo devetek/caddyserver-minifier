@@ -3,13 +3,22 @@ http://localhost:9200 {
 		encode zstd gzip
 		minifier {
 			html {
-				KeepSpecialComments		true
-				KeepComments			true
-				KeepWhitespace			true
-				KeepDefaultAttrVals		true
-				KeepDocumentTags		true
-				KeepEndTags				true
-				KeepQuotes				true
+				KeepSpecialComments true
+				KeepComments true
+				KeepWhitespace true
+				KeepDefaultAttrVals true
+				KeepDocumentTags true
+				KeepEndTags true
+				KeepQuotes true
+			}
+			css {
+				Precision 0
+			}
+			js {
+				KeepVarNames true
+			}
+			svg {
+				KeepComments false
 			}
 		}
 		reverse_proxy localhost:3000
